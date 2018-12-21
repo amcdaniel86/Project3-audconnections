@@ -20,16 +20,15 @@ const UserSchema = new Schema({
         required: true
       },
       avatar: {
-        type: String,
-        required: true
+        type: String
       },
       date: {
         type: String,
-        default: Data.now
+        // default: date.now
         // will give the current date as of now.
       },
 });
 
-module.exports = User = mongoose.model('users', User);
+module.exports = User = mongoose.model('users', UserSchema);
 
 // parameters are name we want to use, then the actual Schema, User.
