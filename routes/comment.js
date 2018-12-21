@@ -29,3 +29,7 @@
 // we have users collection and a profile collection.
 
 // the Model is the MAP of your data that you want in your app.
+
+// React comments
+
+// functional and class based components: functional are for pure display,  no lifecycle methods and no state.
