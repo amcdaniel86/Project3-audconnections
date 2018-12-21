@@ -14,7 +14,7 @@ const ProfileSchema = new Schema({
   },
   favoriteStreamApp: {
     type: String,
-    required: true
+    // required: true
   },
   website: {
     type: String,
@@ -81,7 +81,7 @@ const ProfileSchema = new Schema({
         required: true
       },
       to: {
-        type: date,  
+        type: Date,  
       },
       current: {
         type: Boolean,
@@ -92,6 +92,7 @@ const ProfileSchema = new Schema({
       }
     }
   ],
+  // social is an object of fields (smaller objects, objects within an object)
   social: {
     youtube: {
       type: String
@@ -115,4 +116,4 @@ const ProfileSchema = new Schema({
   }
 });
 
-module.exports = Profile - mongoose.model('profile', ProfileSchema);
+module.exports = Profile = mongoose.model('profile', ProfileSchema);
