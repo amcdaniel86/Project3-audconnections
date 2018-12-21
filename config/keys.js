@@ -1,6 +1,7 @@
 module.exports = {
   mongoURI:
-    "mongodb://alex:rubios86@ds135993.mlab.com:35993/audiophile-connection"
+    "mongodb://alex:rubios86@ds135993.mlab.com:35993/audiophile-connection",
+    secretOrKey: 'secret'
 };
 // module.exports making this object available outside of this file because we need to connect to it.
 

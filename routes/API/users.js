@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const keys = require('../../config/keys');
 
 // Load User model when starting to bring models into route functionality.
 const User = require('../../models/User');
@@ -58,6 +60,51 @@ router.post('/register', (req, res) => {
     });
   // first step... is to use mongoose to see if the email exists. once model is required, then any mongoose methods can be used.
   // req.body - data to a route through a POST request, through form in react, we access it with REQ.BODY. and input name which in this case is email.
+});
+
+
+// @route     GET api/users/login
+// @desc      Login User / Returning JWT Token
+// @access    Public
+router.post('/login', (req, res) => {
+  // remember here on page, user is using a form to login right? thus, guess what is needed? req.body!
+  const email = req.body.email;
+  const password = req.body.password;
+
+  // Find user by email
+    User.findOne({email}) //only email because the user typing in their email is their way to log in.
+      .then(user => {
+        // Check for user
+        if(!user) {
+          return res.status(404).json({email: 'User not found'});
+        }
+
+        // Check Password
+        bcrypt.compare(password, user.password)
+         //hashed password from db because that is user within findOne function, its found in the database,  and so the hashed password comes with finding the user's json in the db.
+          .then(isMatch => {
+            if(isMatch) {
+              // if User matches, then jwt token should be generated in next iteration. right now, it's just giving a message, inside of a json object.
+              // User matched
+
+              const payload = { id: user.id, name: user.name, avatar: user.avatar }; // Create JWT Payload
+              
+              // Sign Token
+              jwt.sign(
+                payload,
+                keys.secretOrKey,
+                { expiresIn: 3600 },
+                (err, token) => { //send the token below with res.json
+                  res.json({
+                    success: true,
+                    token: 'Bearer ' + token
+                  });
+              });
+            } else {
+              return res.status(400).json({password: 'Password incorrect' });
+            }
+          });
+      });
 });
 
 
