@@ -4,6 +4,7 @@ const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
+const passport = require('passport');
 
 // Load User model when starting to bring models into route functionality.
 const User = require('../../models/User');
@@ -98,7 +99,7 @@ router.post('/login', (req, res) => {
                   res.json({
                     success: true,
                     token: 'Bearer ' + token
-                  });
+                  }); // next step is taking the created token, which we can see in postman, and placing it in the header section of postman as an authorization.
               });
             } else {
               return res.status(400).json({password: 'Password incorrect' });
@@ -107,5 +108,18 @@ router.post('/login', (req, res) => {
       });
 });
 
+
+// @route     GET api/users/current
+// @desc      Return current user
+// @access    Private
+router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => { //we treat this like any other route except now its proteted with above passport.authenticate.
+  // res.json({ msg: 'Success' }); initial test before user was created. below is next step.
+  res.json({
+    id:  req.user.id,
+    name: req.user.name,
+    email: req.user.email
+    // password isn't needed.
+  });
+});
 
 module.exports = router;

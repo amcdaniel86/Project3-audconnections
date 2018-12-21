@@ -3,6 +3,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require('body-parser');
+const passport = require('passport');
 
 const users = require('./routes/api/users');
 const profile = require('./routes/api/profile');
@@ -29,10 +30,17 @@ mongoose
     .catch(err =>
       console.log(err));
 
-app.get("/", (req, res) => res.send("Hello World"));
+// app.get("/", (req, res) => res.send("Hello World"));
 // 2 parameters req, res are two objects request and response.
 // initial route to test server.
 // will show Hello in browser when tested.
+
+// Passport  middleware
+app.use(passport.initialize());
+
+// Passport Config
+require('./config/passport')(passport);
+
 
 // Use Routes
 app.use('/api/users', users)
