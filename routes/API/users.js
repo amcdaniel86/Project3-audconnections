@@ -6,6 +6,10 @@ const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
 const passport = require('passport');
 
+// Load Input Validation
+const validateRegisterInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
+
 // Load User model when starting to bring models into route functionality.
 const User = require('../../models/User');
 // ../ out from the api folder, then ../ out of the routes folder.
@@ -25,10 +29,18 @@ router.get('/test', (req, res) => res.json({msg: "Users Works"}));
 // @access    Public
 // cant be logged in to be able to register.
 router.post('/register', (req, res) => {
+  const { errors, isValid } = validateRegisterInput(req.body);
+
+  // Check Validation
+  if(!isValid) {
+    return res.status(400).json(errors);
+  }
+  
   User.findOne({ email: req.body.email })
     .then(user => {
       if(user) {
-        return res.status(400).json({email: 'Email already exists'});
+        errors.email = 'Email already exists';
+        return res.status(400).json(errors); // prior to (errors) - this was required {email: 'Email already exists'}
       } else {
         // else, meaning ok, there wasn't an existing email newuser entered, so... create a new user, thus const and so on below.
         const avatar = gravatar.url(req.body.email, {
@@ -68,6 +80,14 @@ router.post('/register', (req, res) => {
 // @desc      Login User / Returning JWT Token
 // @access    Public
 router.post('/login', (req, res) => {
+
+  const { errors, isValid } = validateLoginInput(req.body);
+
+  // Check Validation
+  if(!isValid) {
+    return res.status(400).json(errors);
+  }
+
   // remember here on page, user is using a form to login right? thus, guess what is needed? req.body!
   const email = req.body.email;
   const password = req.body.password;
@@ -77,7 +97,8 @@ router.post('/login', (req, res) => {
       .then(user => {
         // Check for user
         if(!user) {
-          return res.status(404).json({email: 'User not found'});
+          errors.email = 'User not found';
+          return res.status(404).json(errors); // previously used, but now errors is used for simplicity. {email: 'User not found'}
         }
 
         // Check Password
@@ -102,7 +123,8 @@ router.post('/login', (req, res) => {
                   }); // next step is taking the created token, which we can see in postman, and placing it in the header section of postman as an authorization.
               });
             } else {
-              return res.status(400).json({password: 'Password incorrect' });
+              errors.password = 'Password incorrect';
+              return res.status(400).json(errors); // used before, but with errors declared, only need to insert it now. {password: 'Password incorrect' }
             }
           });
       });
