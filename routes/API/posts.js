@@ -1,8 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
+const passport = require('passport');
 
+// Post Model
+const Post = require('../../models/Post');
+// Profile Model
+const Profile = require('../../models/Profile');
 
-
+// Validation
+const validatePostInput = require('../../Validation/post');
 
 // @route     GET api/posts/test
 // @desc      Tests posts route
@@ -11,5 +18,75 @@ router.get('/test', (req, res) => res.json({msg: "Posts Works"}));
 // res.json is similar to .send but it'll serve .json files.
 // reason you don't have to list /api/posts/test is because the /api/posts part is already on the server.js file setting the default file path for this route. Thus, all that is needed is /test. /api/posts comes before these route path Url's. The app will look at last part on server.js, posts, then go to the posts route file and then find the corresponding route.
 // will provide an automatic status of 200. everything is ok is a 200 status.
+
+// @route     GET api/posts
+// @desc      Get posts
+// @access    Public
+router.get('/', (req, res) => {
+  Post.find()
+    .sort({ date: -1 })
+      .then(posts => res.json(posts))
+      .catch(err =>
+        res.status(404).json({ nopostsfound: 'No posts found' }));
+});
+
+// @route     GET api/posts/:id
+// @desc      Get posts by id
+// @access    Public
+router.get('/:id', (req, res) => {
+  Post.findById(req.params.id)
+      .then(posts => res.json(posts))
+      .catch(err =>
+        res.status(404).json({ nopostfound: 'No post found with that ID' }));
+});
+
+
+// @route     POST api/posts
+// @desc      Create posts
+// @access    Private
+router.post('/', passport.authenticate('jwt', { session: false }), (req, res) => {
+  const { errors, isValid } = validatePostInput(req.body);
+
+  // Check Validation
+  if(!isValid) {
+    // If any errors, send 400 with errors object
+    return res.status(400).json(errors);
+  }
+  
+  const newPost = new Post({
+    text: req.body.text,
+    name: req.body.name,
+    avatar: req.body.avatar,
+    user: req.user.id
+  });
+
+  newPost.save()
+    .then(post => res.json(post));
+}); 
+
+// @route     GET api/posts/:id
+// @desc      Delete posts by id
+// @access    Private
+router.delete('/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
+  Profile.findOne({ user: req.user.id })
+  // doing Profile model first ensures the person who wants to delete the post, IS the owner of the post.
+    .then(profile => {
+      Post.findById(req.params.id)
+        .then(post => {
+          // Check for post owner
+          if(post.user.toString() !== req.user.id) {
+            return res.status(401).json({ notauthorized: 'User not authorized' });
+          }
+
+          // Delete
+          post.remove()
+            .then(() =>
+              res.json({ success: true }));
+            })
+            .catch(err => res.status(404).json({ postnotfound: 'No post found'}));
+    })
+});
+
+
 
 module.exports = router;
