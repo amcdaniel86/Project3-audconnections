@@ -11,3 +11,5 @@
 // best way to test routes without front end being done yet, is with Postman is a great software to deal with backend API's.
 
 // jwt is a small part of the main passport authentication module.
+
+// two forms of validation - mongoose, required: true and our own which are in the validation files.

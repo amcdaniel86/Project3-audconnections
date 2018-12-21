@@ -23,10 +23,10 @@ const UserSchema = new Schema({
         type: String
       },
       date: {
-        type: String,
-        // default: date.now
+        type: Date,
+        default: Date.now
         // will give the current date as of now.
-      },
+      }
 });
 
 module.exports = User = mongoose.model('users', UserSchema);
