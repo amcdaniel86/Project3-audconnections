@@ -5,3 +5,7 @@
 // profile.js is for strings, non authentication purposes like bio, location etc.
 
 // to test a route at this point, just go to localhost:5000/api/users/test and it'll provide a json response with an object.
+
+// with mongoose you create models with schemas
+
+// best way to test routes without front end being done yet, is with Postman is a great software to deal with backend API's.
